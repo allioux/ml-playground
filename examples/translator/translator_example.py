@@ -94,7 +94,7 @@ class TranslatorExample:
         starting_sample = 0
 
         if checkpoint_file is not None and Path(checkpoint_file).is_file():
-            checkpoint = torch.load(checkpoint_file)
+            checkpoint = torch.load(checkpoint_file, map_location=self.device)
             self.translator.load_state_dict(checkpoint["model_state_dict"], strict=True)
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             starting_epoch = checkpoint["epoch"]

@@ -94,7 +94,7 @@ class LMExample:
         starting_sample = 0
 
         if checkpoint_file is not None and Path(checkpoint_file).is_file():
-            checkpoint = torch.load(checkpoint_file)
+            checkpoint = torch.load(checkpoint_file, map_location=self.device)
             self.language_model.load_state_dict(
                 checkpoint["model_state_dict"], strict=True
             )

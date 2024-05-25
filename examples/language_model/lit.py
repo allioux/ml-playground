@@ -54,7 +54,7 @@ class LMModel(Model):
             self.tokenizer, 256, 1024, device=self.device, dropout=0.1
         )
         if checkpoint_file is not None and Path(checkpoint_file).is_file():
-            checkpoint = torch.load(checkpoint_file)
+            checkpoint = torch.load(checkpoint_file, map_location=self.device)
             self.model.load_state_dict(checkpoint["model_state_dict"], strict=True)
 
     def predict(self, inputs: Iterable[JsonDict], **kw) -> Iterable[JsonDict]:
