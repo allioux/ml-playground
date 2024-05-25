@@ -222,7 +222,7 @@ def start(_):
 
     models = {
         "model": TranslatorExample(
-            tokenizer, checkpoint_file="examples/translator/model.pt"
+            tokenizer, checkpoint_file="examples/translator/checkpoint.pt"
         ),
     }
 
