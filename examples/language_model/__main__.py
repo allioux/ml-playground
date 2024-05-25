@@ -54,6 +54,7 @@ def test(
     """Test the model on the validation set."""
 
     print(f"Testing the model on the validation set with a batch size of {batch_size}.")
+    os.environ['TOKENIZERS_PARALLELISM'] = "true"
     example = lm_example(device)
     example.test(batch_size)
 
