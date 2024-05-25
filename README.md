@@ -7,9 +7,9 @@ This repository collects my deep learning experiments. It is a Python project wh
 The ml-playground folder contains implementations of different models using PyTorch where I tend to reimplement most of the layers I use for educational purposes.
 
 So far, it includes the following models:
-	- Recurrent Neural Network (RNN)
-	- Long short-term memory (LSTM)[^1] 
-	- Transformer[^2]
+- Recurrent Neural Network (RNN)
+- Long short-term memory (LSTM)[^1] 
+- Transformer[^2]
 
 More models will follow.
 
@@ -20,7 +20,7 @@ They can be run with the command `python -m examples.<example name>` which will 
 
 ### Language Model
 
-A language model based on a decoder-only Transformer. It has been trained on the Tiny Stories[^4]corpus which consists of short-length stories written in basic English.
+A language model based on a decoder-only Transformer. It has been trained on the Tiny Stories[^4] corpus which consists of short-length stories written in basic English.
 
 ### Translator
 
