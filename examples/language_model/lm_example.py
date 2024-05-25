@@ -138,9 +138,9 @@ class LMExample:
 
     def test(self, batch_size: int):
         collate = Collate(self.tokenizer, device=self.device)
-        valid_ds = TinyStoriesDS("valid")
+        valid_ds = TinyStoriesDS("validation")
         valid_dl = DataLoader(
-            valid_ds, batch_size, collate_fn=collate.collate, shuffle=True
+            valid_ds, batch_size, collate_fn=collate.collate, shuffle=False
         )
 
         self.trainer.test(valid_dl)

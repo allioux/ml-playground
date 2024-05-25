@@ -135,6 +135,22 @@ class TranslatorExample:
 
         self.trainer.fit(train_dl, test_dl, epochs)
 
+    def test(self, batch_size: int):
+        collate = Collate(self.tokenizer, device=self.device)
+        data = TextPairs()
+        train_size = 0.9
+        test_start = int(train_size * len(data))
+        test_dl = DataLoader(
+            data[test_start:],
+            batch_size,
+            collate_fn=collate.collate,
+            shuffle=False,
+            num_workers=4,
+            pin_memory=True,
+        )
+
+        self.trainer.test(test_dl)
+
     def model_summary(self):
         summary(
             self.translator,

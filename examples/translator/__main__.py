@@ -43,6 +43,16 @@ def train(
     example = translator_example(device)
     example.train(epochs, batch_size)
 
+@app.command()
+def test(
+    batch_size: Annotated[int, typer.Argument()],
+    device: Annotated[str, typer.Option(help="Can be cpu or cuda.")] = None,
+):
+    """Test the model on the validation set."""
+
+    print(f"Testing the model on the validation set with a batch size of {batch_size}.")
+    example = translator_example(device)
+    example.test(batch_size)
 
 @app.command()
 def lit():
