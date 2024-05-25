@@ -1,4 +1,4 @@
-import absl
+from absl import app as absl_app
 from examples.language_model.lm_example import LMExample
 import typer
 from typing_extensions import Annotated
@@ -61,7 +61,7 @@ def test(
 @app.command()
 def lit():
     """Load the model with the Learning Interpretability Tool (LIT)."""
-    absl.app.run(start)
+    absl_app.run(start)
 
 
 if __name__ == "__main__":

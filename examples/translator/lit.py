@@ -19,8 +19,6 @@ import torch
 from pathlib import Path
 from examples.translator.translator import Translator
 from typing import Optional
-
-# from . import Collate
 from typing import Iterable, cast, Any
 
 

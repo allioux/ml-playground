@@ -1,6 +1,7 @@
-import absl
+from absl import app as absl_app
 import torch
 from examples.translator.translator_example import TranslatorExample
+from examples.translator.lit import start
 import typer
 from typing_extensions import Annotated
 
@@ -46,7 +47,7 @@ def train(
 @app.command()
 def lit():
     """Load the model with the Learning Interpretability Tool (LIT)."""
-    absl.app.run(start)
+    absl_app.run(start)
 
 
 if __name__ == "__main__":
