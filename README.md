@@ -24,7 +24,7 @@ A language model based on a decoder-only Transformer. It has been trained on the
 
 ### Translator
 
-A simple translation model powered by a Transformer which translates English sentences to French sentences. It has been trained on the French-to-English corpus of the [Tatoeba](https://tatoeba.org) project released under [CC-BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/).
+A simple translation model powered by a Transformer which translates English sentences to French sentences. It has been trained on the English-to-French corpus of the [Tatoeba](https://tatoeba.org) project released under [CC-BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/).
 
 ## References
 
