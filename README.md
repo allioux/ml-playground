@@ -16,15 +16,39 @@ More models will follow.
 ## Examples
 
 The examples folder contains two NLP applications based on the Transformer model. 
-They can be run with the command `python -m examples.<example name>` which will display the available features. They both come with pretrained weights and with an integration with the Language Interpretability Tool[^3]. Note that weights need additional training. 
+They can be run with the command `python -m examples.<example name>` which will display the available features. They both come with pretrained weights and with an integration with the Language Interpretability Tool[^3] which allows to visualise attention weights among other informations.
 
 ### Language Model
 
-A language model based on a decoder-only Transformer. It has been trained on the Tiny Stories[^4] corpus which consists of short-length stories written in basic English.
+A language model based on a decoder-only Transformer. It has been trained on the Tiny Stories[^4] corpus which consists of short-length stories written in basic English. 
+
+For example, when prompted with "Once upon a time", it generates the following text:
+
+> Once upon a time, there was a little girl named Lily. She loved to play outside in the sunshine. One day, she went to the park to play on the swings. She saw a boy sitting on a bench. 
+>
+> "Hi, little girl! What are you doing here?" replied the boy. 
+>
+>"I'm looking for something to do," replied Lily. 
+>
+>The boy smiled and said, "That's a great idea, little girl. Would you like to play with me?" 
+>
+>Lily was so happy and said, "Yes, please!" 
+>
+>The boy gave her a big hug and said, "You're welcome, little girl. I'm glad I could join you." 
+>
+>Lily and the boy spent the day playing together in the sunshine.
 
 ### Translator
 
 A simple translation model powered by a Transformer which translates English sentences to French sentences. It has been trained on the English-to-French corpus of the [Tatoeba](https://tatoeba.org) project released under [CC-BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/).
+
+For example, the sentence 
+> She saw a boy sitting on a bench. 
+
+is correctly translated to
+> Elle vit un garçon assis sur un banc.
+
+Note that this model remains quite unreliable due to the small size of its dataset. 
 
 ## References
 
