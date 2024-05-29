@@ -1,26 +1,26 @@
+from pathlib import Path
+from typing import Any, Iterable, Optional
+
 from lit_nlp import server_flags
 from lit_nlp.api.dataset import Dataset
 from lit_nlp.api.model import Model
 from lit_nlp.api.types import (
-    Spec,
-    TextSegment,
+    AttentionHeads,
+    Embeddings,
     GeneratedText,
     JsonDict,
+    Spec,
+    TextSegment,
     Tokens,
-    Embeddings,
-    AttentionHeads,
     TokenTopKPreds,
 )
 from lit_nlp.dev_server import Server
-from examples.translator.text_pairs import TextPairs
+import torch
 from torch import device, randperm
 from transformers import AutoTokenizer
-import torch
-from pathlib import Path
-from examples.translator.translator import Translator
-from typing import Optional
-from typing import Iterable, cast, Any
 
+from examples.translator.text_pairs import TextPairs
+from examples.translator.translator import Translator
 
 class LMDataset(Dataset):
     """Loader for MultiNLI development set."""

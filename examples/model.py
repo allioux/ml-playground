@@ -1,4 +1,5 @@
-from typing import TypeVar, Protocol, TypedDict, Optional
+from typing import Optional, Protocol, TypedDict, TypeVar 
+
 from torch import Tensor, nn
 
 T = TypeVar("T", contravariant=True)

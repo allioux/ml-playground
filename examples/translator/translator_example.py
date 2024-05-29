@@ -1,17 +1,17 @@
-import torch
-from transformers import AutoTokenizer
-from torch import device, Tensor
-from examples.translator.translator import Translator
 from pathlib import Path
-from examples.translator.text_pairs import TextPairs
 from typing import Optional, Any
-from ml_playground.utils import TorchKw
-from examples.translator.translator import Translator
+
+import torch
+from torch import device, Tensor
 from torch.utils.data import DataLoader
-from examples.trainer import Trainer
 from torchinfo import summary
 import transformers
+from transformers import AutoTokenizer
 
+from ml_playground.utils import TorchKw
+from examples.trainer import Trainer
+from examples.translator.text_pairs import TextPairs
+from examples.translator.translator import Translator
 
 class Collate:
     def __init__(

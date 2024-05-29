@@ -1,10 +1,12 @@
+import math
+from typing import Any, Callable, Dict, Optional
+
 import torch
-from torch import nn, Tensor, BoolTensor, device, dtype, Size
+from torch import BoolTensor, Size, Tensor, nn, device, dtype
+
 from ml_playground.dense import Dense
 from ml_playground.dropout import Dropout
-from ml_playground.utils import masked_softmax, check_shape, PrioritizedItem
-import math
-from typing import Optional, Dict, Any, Callable
+from ml_playground.utils import PrioritizedItem, check_shape, masked_softmax 
 
 
 class DotProductAttention(nn.Module):

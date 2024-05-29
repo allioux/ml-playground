@@ -1,11 +1,11 @@
-import torch
-from torch import nn
-from torch.nn import init
 import math
-from ml_playground.utils import activations
 from typing import Optional, Dict, Any
-from torch import device, dtype, Tensor, Size
 
+import torch
+from torch import Size, Tensor, device, dtype, nn
+from torch.nn import init
+
+from ml_playground.utils import activations
 
 class Dense(nn.Module):
     def __init__(

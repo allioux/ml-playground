@@ -1,8 +1,10 @@
+from typing import Any, Optional
+
 import torch
 from torch import device, nn, Tensor
-from typing import Any, Optional
-from ml_playground.transformer import Transformer, beam_search
 import torch.nn.functional as F
+
+from ml_playground.transformer import Transformer, beam_search
 from examples.model import Model, ModelError
 
 

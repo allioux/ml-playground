@@ -1,14 +1,16 @@
-import torch
-from torchinfo import summary
-from transformers import AutoTokenizer
-from examples.language_model.tiny_stories import TinyStoriesDS
-from examples.trainer import Trainer
-from torch.utils.data import DataLoader
-from typing import Optional, Any
-from torch import device, Tensor
 from pathlib import Path
-from examples.language_model.transformer_lm import TransformerLM
+from typing import Optional, Any
+
+import torch
+from torch.utils.data import DataLoader
+from torchinfo import summary
 import transformers
+from transformers import AutoTokenizer
+from torch import device, Tensor
+
+from examples.language_model.tiny_stories import TinyStoriesDS
+from examples.language_model.transformer_lm import TransformerLM
+from examples.trainer import Trainer
 
 
 class Collate:

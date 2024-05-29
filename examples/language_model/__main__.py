@@ -1,10 +1,12 @@
+import os
+
 from absl import app as absl_app
-from examples.language_model.lm_example import LMExample
+import torch
 import typer
 from typing_extensions import Annotated
+
 from examples.language_model.lit import start
-import torch
-import os
+from examples.language_model.lm_example import LMExample
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -26,7 +28,7 @@ def summary():
 def generate(
     prefix: Annotated[str, typer.Option()] = "Once upon a time",
     max_length: Annotated[int, typer.Option()] = 50,
-    device: Annotated[str, typer.Option(help="Can be cpu or cuda.")] = "cpu",
+    device: Annotated[str, typer.Option(help="Can be cpu or cuda.")] = None,
 ):
     """Generate a text starting with a given prefix."""
     example = lm_example(device)

@@ -1,10 +1,13 @@
+import os
+
 from absl import app as absl_app
 import torch
-from examples.translator.translator_example import TranslatorExample
-from examples.translator.lit import start
 import typer
 from typing_extensions import Annotated
-import os
+
+from examples.translator.lit import start
+from examples.translator.translator_example import TranslatorExample
+
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -41,9 +44,10 @@ def train(
     """Train the model."""
 
     print(f"Training the model with a batch size of {batch_size} for {epochs} epochs.")
-    os.environ['TOKENIZERS_PARALLELISM'] = "true"
+    os.environ["TOKENIZERS_PARALLELISM"] = "true"
     example = translator_example(device)
     example.train(epochs, batch_size)
+
 
 @app.command()
 def test(
@@ -53,9 +57,10 @@ def test(
     """Test the model on the validation set."""
 
     print(f"Testing the model on the validation set with a batch size of {batch_size}.")
-    os.environ['TOKENIZERS_PARALLELISM'] = "true"
+    os.environ["TOKENIZERS_PARALLELISM"] = "true"
     example = translator_example(device)
     example.test(batch_size)
+
 
 @app.command()
 def lit():

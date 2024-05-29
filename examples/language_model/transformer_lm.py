@@ -1,3 +1,9 @@
+from typing import Optional, Any
+
+import torch
+from torch import nn, dtype, device, Tensor
+import torch.nn.functional as F
+
 from ml_playground.dense import Dense
 from ml_playground.transformer import (
     Encoder,
@@ -5,10 +11,6 @@ from ml_playground.transformer import (
     beam_search as beam_search_transformer,
 )
 from ml_playground.utils import TorchKw
-import torch
-from torch import nn, dtype, device, Tensor
-import torch.nn.functional as F
-from typing import Optional, Any
 from examples.model import ModelError, Model
 
 

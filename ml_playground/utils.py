@@ -1,8 +1,10 @@
-from torch import Tensor, BoolTensor, dtype, device
-import torch.nn.functional as F
 from dataclasses import dataclass, field, astuple
-from typing import Any, Optional, TypedDict, Callable
+from typing import Any, Callable, Optional, TypedDict
+
 from einops import rearrange
+from torch import BoolTensor, Tensor, device, dtype
+import torch.nn.functional as F
+
 
 activations: dict[str, Callable[..., Any]] = {
     "relu": F.relu,

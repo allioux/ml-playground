@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Iterable, Optional, cast, Any
+
 from lit_nlp import server_flags
 from lit_nlp.api.dataset import Dataset
 from lit_nlp.api.model import Model
@@ -12,17 +15,15 @@ from lit_nlp.api.types import (
     TokenTopKPreds,
 )
 from lit_nlp.dev_server import Server
-from examples.language_model.tiny_stories import TinyStoriesDS
-from torch import device, randperm
-from torch.utils.data import Subset
-from torch.nn.functional import softmax
-from transformers import AutoTokenizer
 import torch
-from pathlib import Path
+from torch import device, randperm
+from torch.nn.functional import softmax
+from torch.utils.data import Subset
+from transformers import AutoTokenizer
 
-# from . import Collate
+from examples.language_model.tiny_stories import TinyStoriesDS
 from examples.language_model.transformer_lm import TransformerLM
-from typing import Iterable, Optional, cast, Any
+
 
 class LMDataset(Dataset):
     """Loader for MultiNLI development set."""
@@ -151,7 +152,9 @@ def start(_):
     }
 
     models = {
-        "model": LMModel(tokenizer, checkpoint_file="examples/language_model/checkpoint.pt"),
+        "model": LMModel(
+            tokenizer, checkpoint_file="examples/language_model/checkpoint.pt"
+        ),
     }
 
     lit_demo = Server(models, datasets, **server_flags.get_flags())

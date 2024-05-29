@@ -1,11 +1,13 @@
+import math
+from typing import Any, Callable, Optional, TypeVar
+
 import torch
 from torch import nn, Tensor, device, dtype, Size
-from ml_playground.dense import Dense
-from ml_playground.utils import TorchKw, PrioritizedItem
-from ml_playground.dropout import Dropout
 import torch.nn.functional as F
-from typing import Optional, Any, Callable, TypeVar
-import math
+
+from ml_playground.dense import Dense
+from ml_playground.dropout import Dropout
+from ml_playground.utils import PrioritizedItem, TorchKw
 
 
 class RNNCell(nn.Module):

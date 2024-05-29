@@ -1,12 +1,14 @@
+import sys
+import time
+from typing import TypeVar, Optional, cast, Sized, TypedDict
+
 import torch
 from torch.optim import Optimizer
 from torch.optim.optimizer import StateDict
 from torch.utils.data import DataLoader
-from typing import TypeVar, Optional, cast, Sized, TypedDict
-from examples.model import Model
-import sys
 from termcolor import colored
-import time
+
+from examples.model import Model
 
 T = TypeVar("T", contravariant=True, bound=Sized)
 
@@ -53,7 +55,11 @@ class Trainer:
 
             # Not optimal…
             if batch < start_batch:
-                if time.time() - update_time > 1 or batch == 0 or batch == start_batch - 1:
+                if (
+                    time.time() - update_time > 1
+                    or batch == 0
+                    or batch == start_batch - 1
+                ):
                     update_time = time.time()
                     sys.stdout.write(
                         colored(
@@ -78,12 +84,13 @@ class Trainer:
 
             loss = training_results["loss"]
             accuracy = training_results["accuracy"]
-
             loss.backward()
+
             if self.clip_grad_norm is not None:
                 torch.nn.utils.clip_grad_norm_(
                     self.model.parameters(), self.clip_grad_norm
                 )
+
             self.optimizer.step()
             self.optimizer.zero_grad()
 
@@ -158,6 +165,7 @@ class Trainer:
     ) -> None:
         starting_epoch = self.starting_epoch
         for epoch in range(starting_epoch, starting_epoch + epochs):
+            self.test(test_dl)
             self.train(train_dl, epoch)
             if test_dl is not None:
                 self.test(test_dl)
