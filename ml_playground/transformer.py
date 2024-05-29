@@ -134,7 +134,7 @@ class MultiHeadAttention(nn.Module):
         return x.reshape(-1, *x.shape[-2:])
 
     def transpose_output(self, x: Tensor) -> Tensor:
-        if x.shape[0] != self.num_heads:
+        if x.size(0) != self.num_heads:
             x = x.reshape(-1, self.num_heads, *x.shape[1:])
 
         x = x.permute(*tuple(range(x.dim()))[:-3], -2, -3, -1)
@@ -167,7 +167,7 @@ class PositionalEncoding(nn.Module):
     def forward(self, x: Tensor) -> Tensor:
         check_shape(x, "... seq d", d=self.d_model)
 
-        seq_len = x.shape[-2]
+        seq_len = x.size(-2)
         x = x + self.pe[:seq_len]
         return self.dropout(x)
 
@@ -296,10 +296,10 @@ class Decoder(nn.Module):
             else None
         )
 
-        x_length = x.shape[-2]
-        state_length = state.shape[-2]
+        x_length = x.size(-2)
+        state_length = state.size(-2)
         is_batched = x.dim() == 3
-        batch_dim = Size((x.shape[0],) if is_batched else ())
+        batch_dim = Size((x.size(0),) if is_batched else ())
 
         self_attn_weights = torch.empty(
             (self.num_layers,) + batch_dim + (self.num_heads, x_length, x_length),
@@ -420,10 +420,10 @@ class Encoder(nn.Module):
             else ()
         )
 
-        seq_length = x.shape[-2]
+        seq_length = x.size(-2)
         is_batched = x.dim() == 3
 
-        batch_dim = Size((x.shape[0],) if is_batched else ())
+        batch_dim = Size((x.size(0),) if is_batched else ())
 
         attn_weights = torch.empty(
             (self.num_layers,) + batch_dim + (self.num_heads, seq_length, seq_length),

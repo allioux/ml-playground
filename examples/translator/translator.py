@@ -75,7 +75,7 @@ class Translator(Model[tuple[Tensor, Tensor]]):
 
         pred, _ = self(src, tgt)
 
-        vocab_size = pred.shape[-1]
+        vocab_size = pred.size(-1)
         pred = pred.reshape((-1, vocab_size))
 
         y = y.reshape((-1,))

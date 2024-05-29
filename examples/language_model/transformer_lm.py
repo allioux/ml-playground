@@ -51,7 +51,7 @@ class TransformerLM(Model[Tensor]):
         average_weights: bool = False,
     ) -> tuple[Tensor, Tensor]:
 
-        mask = torch.ones((x.shape[-1], x.shape[-1]), device=self.device).tril() == 0.0
+        mask = torch.ones((x.size(-1), x.size(-1)), device=self.device).tril() == 0.0
 
         x = self.embedding(x)
         x = self.pos_encoding(x)
@@ -112,7 +112,7 @@ class TransformerLM(Model[Tensor]):
         pad_token_id = self.tokenizer.pad_token_id
         pred, _ = self(x)
 
-        vocab_size = pred.shape[-1]
+        vocab_size = pred.size(-1)
         pred = pred.reshape((-1, vocab_size))
         y = y.reshape((-1,))
 

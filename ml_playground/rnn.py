@@ -149,7 +149,7 @@ class BiRNN(nn.Module):
         state_fwd: Optional[Tensor] = None,
         state_bwd: Optional[Tensor] = None,
     ):
-        seq_length = x.shape[0]
+        seq_length = x.size(0)
         hidden_dim = self.rnn_fwd.hidden_dim
 
         y_fwd = self.rnn_fwd(x, state_fwd)
@@ -158,7 +158,7 @@ class BiRNN(nn.Module):
         if len(x.shape) == 2:
             outputs = torch.empty((seq_length, 2 * hidden_dim), device=self.device)
         elif len(x.shape) == 3:
-            batch_size = x.shape[1]
+            batch_size = x.size(1)
             outputs = torch.empty(
                 (seq_length, batch_size, 2 * hidden_dim), device=self.device
             )
