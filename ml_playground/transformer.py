@@ -6,7 +6,7 @@ from torch import BoolTensor, Size, Tensor, nn, device, dtype
 
 from ml_playground.dense import Dense
 from ml_playground.dropout import Dropout
-from ml_playground.utils import PrioritizedItem, check_shape, masked_softmax 
+from ml_playground.utils import PrioritizedItem, check_shape, masked_softmax
 
 
 class DotProductAttention(nn.Module):
@@ -177,6 +177,7 @@ class FeedForward(nn.Module):
         self,
         embed_dim: int,
         hidden_dim: int,
+        activation: str = "relu",
         dropout: float = 0.1,
         device: Optional[device] = None,
         dtype: Optional[dtype] = None,
@@ -198,6 +199,7 @@ class DecoderLayer(nn.Module):
         self,
         embed_dim: int,
         ff_hidden_dim: int,
+        ff_activation: str = "relu",
         num_heads: int = 8,
         dropout: float = 0.1,
         device: Optional[device] = None,
@@ -208,7 +210,9 @@ class DecoderLayer(nn.Module):
         self.device = device
         self.mha1 = MultiHeadAttention(embed_dim, num_heads, dropout, **kwargs)
         self.mha2 = MultiHeadAttention(embed_dim, num_heads, dropout, **kwargs)
-        self.ff = FeedForward(embed_dim, ff_hidden_dim, dropout, **kwargs)
+        self.ff = FeedForward(
+            embed_dim, ff_hidden_dim, ff_activation, dropout, **kwargs
+        )
 
         self.lnorm1 = nn.LayerNorm(embed_dim, **kwargs)
         self.lnorm2 = nn.LayerNorm(embed_dim, **kwargs)
@@ -253,6 +257,7 @@ class Decoder(nn.Module):
         self,
         embed_dim: int,
         ff_hidden_dim: int,
+        ff_activation: str = "relu",
         num_layers: int = 6,
         num_heads: int = 8,
         dropout: float = 0.1,
@@ -268,7 +273,14 @@ class Decoder(nn.Module):
         self.dtype = dtype
         self.dec_layers = nn.ModuleList(
             [
-                DecoderLayer(embed_dim, ff_hidden_dim, num_heads, dropout, **kwargs)
+                DecoderLayer(
+                    embed_dim,
+                    ff_hidden_dim,
+                    ff_activation,
+                    num_heads,
+                    dropout,
+                    **kwargs
+                )
                 for _ in range(num_layers)
             ]
         )
@@ -333,6 +345,7 @@ class EncoderLayer(nn.Module):
         self,
         embed_dim: int,
         ff_hidden_dim: int,
+        ff_activation: str = "relu",
         num_heads: int = 8,
         dropout: float = 0.1,
         device: Optional[device] = None,
@@ -343,7 +356,9 @@ class EncoderLayer(nn.Module):
         self.embed_dim = embed_dim
         self.device = device
         self.mha = MultiHeadAttention(embed_dim, num_heads, dropout, **kwargs)
-        self.ff = FeedForward(embed_dim, ff_hidden_dim, dropout, **kwargs)
+        self.ff = FeedForward(
+            embed_dim, ff_hidden_dim, ff_activation, dropout, **kwargs
+        )
 
         self.lnorm1 = nn.LayerNorm(embed_dim, **kwargs)
         self.lnorm2 = nn.LayerNorm(embed_dim, **kwargs)
@@ -380,6 +395,7 @@ class Encoder(nn.Module):
         self,
         embed_dim: int,
         ff_hidden_dim: int,
+        ff_activation: str = "relu",
         num_layers: int = 6,
         num_heads: int = 8,
         dropout: float = 0.1,
@@ -396,7 +412,12 @@ class Encoder(nn.Module):
         self.enc_layers = nn.ModuleList(
             [
                 EncoderLayer(
-                    embed_dim, ff_hidden_dim, num_heads, dropout=dropout, **kwargs
+                    embed_dim,
+                    ff_hidden_dim,
+                    ff_activation,
+                    num_heads,
+                    dropout=dropout,
+                    **kwargs
                 )
                 for _ in range(num_layers)
             ]
@@ -445,6 +466,7 @@ class Transformer(nn.Module):
         num_embeddings: int,
         embed_dim: int,
         ff_hidden_dim: int,
+        ff_activation: str = "relu",
         num_layers: int = 6,
         num_heads: int = 8,
         dropout: float = 0.1,
@@ -458,10 +480,22 @@ class Transformer(nn.Module):
         self.embed_src = nn.Embedding(num_embeddings, embed_dim, **kwargs)
         self.embed_tgt = nn.Embedding(num_embeddings, embed_dim, **kwargs)
         self.encoder = Encoder(
-            embed_dim, ff_hidden_dim, num_layers, num_heads, dropout, **kwargs
+            embed_dim,
+            ff_hidden_dim,
+            ff_activation,
+            num_layers,
+            num_heads,
+            dropout,
+            **kwargs
         )
         self.decoder = Decoder(
-            embed_dim, ff_hidden_dim, num_layers, num_heads, dropout, **kwargs
+            embed_dim,
+            ff_hidden_dim,
+            ff_activation,
+            num_layers,
+            num_heads,
+            dropout,
+            **kwargs
         )
         self.linear = Dense(embed_dim, num_embeddings, **kwargs)
         # weight sharing

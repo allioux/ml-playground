@@ -14,7 +14,7 @@ from ml_playground.utils import TorchKw
 from examples.model import ModelError, Model
 
 
-class TransformerLM(Model[Tensor]):
+class TransformerLM(Model[Tensor, Tensor]):
     def __init__(
         self,
         tokenizer: Any,
@@ -36,6 +36,7 @@ class TransformerLM(Model[Tensor]):
         self.encoder = Encoder(
             embedding_dim,
             ff_hidden_dim,
+            "relu",
             self.num_layers,
             self.num_heads,
             dropout,

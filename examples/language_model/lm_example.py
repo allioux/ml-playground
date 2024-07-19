@@ -22,7 +22,6 @@ class Collate:
     ) -> None:
         self.tokenizer = tokenizer
         self.device = "cpu"
-
         self.seq_length = seq_length
 
     def collate(self, samples: list[str]) -> tuple[Tensor, Tensor]:

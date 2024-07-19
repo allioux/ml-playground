@@ -10,17 +10,18 @@ So far, it includes the following models:
 - Recurrent Neural Network (RNN)
 - Long short-term memory (LSTM)[^1] 
 - Transformer[^2]
+- Bidirectional Encoder Representations from Transformers (BERT)[^3]
 
 More models will follow.
 
 ## Examples
 
 The examples folder contains two NLP applications based on the Transformer model. 
-They can be run with the command `python -m examples.<example name>` which will display the available features. They both come with pretrained weights and with an integration with the Language Interpretability Tool[^3] which allows to visualise attention weights among other informations.
+They can be run with the command `python -m examples.<example name>` which will display the available features. They both come with pretrained weights and with an integration with the Language Interpretability Tool[^4] which allows to visualise attention weights among other informations.
 
 ### Language Model
 
-A language model based on a decoder-only Transformer. It has been trained on the Tiny Stories[^4] corpus which consists of short-length stories written in basic English. 
+A language model based on a decoder-only Transformer. It has been trained on the Tiny Stories[^5] corpus which consists of short-length stories written in basic English. 
 
 For example, when prompted with "Once upon a time", it generates the following text:
 
@@ -54,5 +55,6 @@ Note that this model remains quite unreliable due to the small size of its datas
 
 [^1]: Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural computation, 9(8), 1735-1780.
 [^2]: Vaswani, A., Shazeer, N.M., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, L., & Polosukhin, I. (2017). Attention is All you Need. Neural Information Processing Systems.
-[^3]: Eldan, R., & Li, Y. (2023). TinyStories: How Small Can Language Models Be and Still Speak Coherent English? ArXiv, abs/2305.07759.
-[^4]: Tenney, I., Wexler, J., Bastings, J., Bolukbasi, T., Coenen, A., Gehrmann, S., Jiang, E., Pushkarna, M., Radebaugh, C., Reif, E., & Yuan, A. (2020). The Language Interpretability Tool: Extensible, Interactive Visualizations and Analysis for NLP Models. Conference on Empirical Methods in Natural Language Processing.
+[^3]: Devlin, J., Chang, M., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. North American Chapter of the Association for Computational Linguistics.
+[^4]: Eldan, R., & Li, Y. (2023). TinyStories: How Small Can Language Models Be and Still Speak Coherent English? ArXiv, abs/2305.07759.
+[^5]: Tenney, I., Wexler, J., Bastings, J., Bolukbasi, T., Coenen, A., Gehrmann, S., Jiang, E., Pushkarna, M., Radebaugh, C., Reif, E., & Yuan, A. (2020). The Language Interpretability Tool: Extensible, Interactive Visualizations and Analysis for NLP Models. Conference on Empirical Methods in Natural Language Processing.

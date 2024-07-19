@@ -8,6 +8,7 @@ import torch.nn.functional as F
 
 activations: dict[str, Callable[..., Any]] = {
     "relu": F.relu,
+    "gelu": F.gelu,
     "sigmoid": F.sigmoid,
     "tanh": F.tanh,
 }

@@ -10,7 +10,8 @@ from termcolor import colored
 
 from examples.model import Model
 
-T = TypeVar("T", contravariant=True, bound=Sized)
+In = TypeVar("In", contravariant=True, bound=Sized)
+Out = TypeVar("Out", contravariant=True, bound=Sized)
 
 
 class Checkpoint(TypedDict):
@@ -23,7 +24,7 @@ class Checkpoint(TypedDict):
 class Trainer:
     def __init__(
         self,
-        model: Model[T],
+        model: Model[In, Out],
         optimizer: Optimizer,
         starting_epoch: int = 0,
         starting_sample: int = 0,
@@ -37,7 +38,7 @@ class Trainer:
         self.clip_grad_norm = clip_grad_norm
         self.checkpoint_file = checkpoint_file
 
-    def train(self, dataloader: DataLoader[T], epoch: int) -> None:
+    def train(self, dataloader: DataLoader[In], epoch: int) -> None:
         size = len(dataloader.dataset)
         sample = self.starting_sample
         update_time = time.time()
@@ -48,7 +49,7 @@ class Trainer:
         sample_offset = self.starting_sample % batch_size
 
         print(f"EPOCH {epoch}")
-
+        refresh = False
         # The typing information of the dataloader is lost when iterating over it!
         # (PyTorch issue #119123)
         for batch, (x, y) in enumerate(dataloader):
@@ -74,10 +75,11 @@ class Trainer:
                 x = x[sample_offset:]
                 y = y[sample_offset:]
 
-            sample += len(y)
+            sample = min((batch + 1) * batch_size, size)
 
             if time.time() - update_time > 5 or sample == size or batch == start_batch:
                 update_time = time.time()
+                refresh = True
                 training_results = self.model.training_step(x, y, with_accuracy=True)
             else:
                 training_results = self.model.training_step(x, y, with_accuracy=False)
@@ -94,15 +96,16 @@ class Trainer:
             self.optimizer.step()
             self.optimizer.zero_grad()
 
-            if accuracy is not None:
+            if refresh:
+                refresh = False
                 percent = int(100 * sample / size)
                 bar = "=" * int(60 * sample / size)
                 progress = (
                     f"\r[{bar:<60}] Training {percent}% "
                     f"| sample: {sample}/{size} "
                     f"| loss: {loss:.3} "
-                    f"| accuracy: {accuracy:.3}"
                 )
+                progress += f"| accuracy: {accuracy:.3}" if accuracy is not None else ""
                 sys.stdout.write(colored(progress, "magenta"))
                 sys.stdout.flush()
 
@@ -125,7 +128,7 @@ class Trainer:
         sys.stdout.write("\n")
         sys.stdout.flush()
 
-    def test(self, test_dl: DataLoader[T]) -> None:
+    def test(self, test_dl: DataLoader[In]) -> None:
         size = len(test_dl.dataset)
         sample = 0
         loss, accuracy = 0.0, 0.0
@@ -159,15 +162,15 @@ class Trainer:
 
     def fit(
         self,
-        train_dl: DataLoader[T],
-        test_dl: Optional[DataLoader[T]] = None,
+        train_dl: DataLoader[In],
+        test_dl: Optional[DataLoader[In]] = None,
         epochs: int = 1,
     ) -> None:
         starting_epoch = self.starting_epoch
         for epoch in range(starting_epoch, starting_epoch + epochs):
-            self.test(test_dl)
+            #self.test(test_dl)
             self.train(train_dl, epoch)
-            if test_dl is not None:
-                self.test(test_dl)
+            #if test_dl is not None:
+            #    self.test(test_dl)
             self.starting_epoch += 1
             self.starting_sample = 0
