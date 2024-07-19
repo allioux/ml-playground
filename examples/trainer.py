@@ -10,7 +10,8 @@ from termcolor import colored
 
 from examples.model import Model
 
-T = TypeVar("T", contravariant=True, bound=Sized)
+In = TypeVar("In", contravariant=True, bound=Sized)
+Out = TypeVar("Out", contravariant=True, bound=Sized)
 
 
 class Checkpoint(TypedDict):
@@ -23,7 +24,7 @@ class Checkpoint(TypedDict):
 class Trainer:
     def __init__(
         self,
-        model: Model[T],
+        model: Model[In, Out],
         optimizer: Optimizer,
         starting_epoch: int = 0,
         starting_sample: int = 0,
@@ -37,7 +38,7 @@ class Trainer:
         self.clip_grad_norm = clip_grad_norm
         self.checkpoint_file = checkpoint_file
 
-    def train(self, dataloader: DataLoader[T], epoch: int) -> None:
+    def train(self, dataloader: DataLoader[In], epoch: int) -> None:
         size = len(dataloader.dataset)
         sample = self.starting_sample
         update_time = time.time()
@@ -125,7 +126,7 @@ class Trainer:
         sys.stdout.write("\n")
         sys.stdout.flush()
 
-    def test(self, test_dl: DataLoader[T]) -> None:
+    def test(self, test_dl: DataLoader[In]) -> None:
         size = len(test_dl.dataset)
         sample = 0
         loss, accuracy = 0.0, 0.0
@@ -159,8 +160,8 @@ class Trainer:
 
     def fit(
         self,
-        train_dl: DataLoader[T],
-        test_dl: Optional[DataLoader[T]] = None,
+        train_dl: DataLoader[In],
+        test_dl: Optional[DataLoader[In]] = None,
         epochs: int = 1,
     ) -> None:
         starting_epoch = self.starting_epoch

@@ -10,6 +10,7 @@ So far, it includes the following models:
 - Recurrent Neural Network (RNN)
 - Long short-term memory (LSTM)[^1] 
 - Transformer[^2]
+- Bidirectional Encoder Representations from Transformers (BERT)[^5]
 
 More models will follow.
 
@@ -56,3 +57,4 @@ Note that this model remains quite unreliable due to the small size of its datas
 [^2]: Vaswani, A., Shazeer, N.M., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, L., & Polosukhin, I. (2017). Attention is All you Need. Neural Information Processing Systems.
 [^3]: Eldan, R., & Li, Y. (2023). TinyStories: How Small Can Language Models Be and Still Speak Coherent English? ArXiv, abs/2305.07759.
 [^4]: Tenney, I., Wexler, J., Bastings, J., Bolukbasi, T., Coenen, A., Gehrmann, S., Jiang, E., Pushkarna, M., Radebaugh, C., Reif, E., & Yuan, A. (2020). The Language Interpretability Tool: Extensible, Interactive Visualizations and Analysis for NLP Models. Conference on Empirical Methods in Natural Language Processing.
+[^5]: Devlin, J., Chang, M., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. North American Chapter of the Association for Computational Linguistics.

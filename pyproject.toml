@@ -19,6 +19,9 @@ lit-nlp = "^1.1.1"
 einops = "^0.8.0"
 typer = "^0.12.3"
 termcolor = "^2.4.0"
+spacy = "^3.7.5"
+en_core_web_sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz"}
+
 
 [build-system]
 requires = ["poetry-core"]

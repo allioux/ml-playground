@@ -8,7 +8,7 @@ from ml_playground.transformer import Transformer, beam_search
 from examples.model import Model, ModelError
 
 
-class Translator(Model[tuple[Tensor, Tensor]]):
+class Translator(Model[tuple[Tensor, Tensor], Tensor]):
     def __init__(
         self,
         tokenizer: Any,
