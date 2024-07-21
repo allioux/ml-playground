@@ -26,7 +26,7 @@ class Collate:
         self.max_src_length = max_src_length
         self.max_tgt_length = max_tgt_length
 
-    def collate(self, samples: list[str]) -> tuple[tuple[Tensor, Tensor], Tensor]:
+    def collate(self, samples: list[tuple[str, str]]) -> tuple[tuple[Tensor, Tensor], Tensor]:
         src_token_ids: list[list[int]]
         tgt_token_ids: list[list[int]]
         src_token_ids, tgt_token_ids = [], []

@@ -28,7 +28,7 @@ class BERTEncoder(nn.Module):
         super().__init__()
         self.token_embed = nn.Embedding(num_embeddings, embed_dim, **kwargs)
         self.segment_embed = nn.Embedding(segments, embed_dim, **kwargs)
-        self.pos_encoding = nn.Parameter(torch.randn(1, max_len, embed_dim, **kwargs))
+        self.pos_encoding = nn.Parameter(torch.randn(max_len, embed_dim, **kwargs))
         self.transformer = Encoder(
             embed_dim, ff_hidden_dim, "gelu", num_layers, num_heads, dropout, **kwargs
         )
@@ -47,8 +47,8 @@ class BERTEncoder(nn.Module):
             check_shape(
                 mask,
                 "... seq1 seq2",
-                seq1=x.size(-2),
-                seq2=x.size(-2),
+                seq1=x.size(-1),
+                seq2=x.size(-1),
             )
             if mask is not None
             else ()
@@ -56,7 +56,7 @@ class BERTEncoder(nn.Module):
 
         x = self.token_embed(x)
         x += self.segment_embed(segments)
-        x += self.pos_encoding
+        x += self.pos_encoding[: x.size(-2)]
 
         out, attn_weights = self.transformer(x, mask, average_weights)
 
@@ -94,20 +94,19 @@ class NextSentencePred(nn.Module):
         self.linear = Dense(hidden_dim, 2, device=device, dtype=dtype)
 
     def forward(self, x):
-        return self.linear(x[:, 0, :])
+        return self.linear(x[:, 0])
 
 
 class BERTModel(Model[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]):
     def __init__(
         self,
         tokenizer: Any,
-        num_embeddings: int,
         embed_dim: int,
         ff_hidden_dim: int,
         num_layers: int = 6,
         num_heads: int = 8,
         max_len: int = 5000,
-        segments: int = 1,
+        segments: int = 2,
         dropout: float = 0.1,
         device: Optional[device] = None,
         dtype: Optional[dtype] = None,
@@ -115,6 +114,9 @@ class BERTModel(Model[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]):
         kwargs: Dict[str, Any] = {"device": device, "dtype": dtype}
         super().__init__()
         self.tokenizer = tokenizer
+        self.device = device
+        self.num_heads = num_heads
+        num_embeddings = len(tokenizer)
         self.encoder = BERTEncoder(
             num_embeddings,
             embed_dim,
@@ -132,14 +134,17 @@ class BERTModel(Model[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]):
         # weight sharing
         # self.linear.weight = self.embed_tgt.weight
 
-    def forward(self, x, segments):
-        mask = (
-            einops.repeat(x, "batch seq -> batch seq seq", seq=x.dim(-1))
-            == self.tokenizer.pad_token_id
-        )
+    def forward(self, x: Tensor, segments: Tensor, mask: Optional[BoolTensor]):
+        is_batched = x.dim() == 2
+        seq_length = x.size(-1)
 
-        x, attn_weights = self.encoder(x, segments, mask)
-        mlm_pred = self.mlm(x)
+        pad_mask = (x == self.tokenizer.pad_token_id).unsqueeze(-2)
+        pad_mask = pad_mask.repeat_interleave(seq_length, dim=-2)
+        if is_batched:
+            pad_mask = pad_mask.repeat_interleave(self.num_heads, dim=0)
+
+        x, attn_weights = self.encoder(x, segments, pad_mask)
+        mlm_pred = self.mlm(x[mask])
         nsp_pred = self.nsp(x)
         return mlm_pred, nsp_pred, attn_weights
 
@@ -153,20 +158,24 @@ class BERTModel(Model[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]):
         mlm_tgt shape: (batch, 2)
         nsp_tgt shape: (batch, seq)"""
         inputs, segments = x
-        mlm_tgt, nsp_tgt = y
-        inputs, segments, y = (
+        mask, mlm_tgt, nsp_tgt = y
+        inputs, segments = (
             inputs.to(self.device, non_blocking=True),
             segments.to(self.device, non_blocking=True),
-            y.to(self.device, non_blocking=True),
+        )
+        mask, mlm_tgt, nsp_tgt = (
+            mask.to(self.device, non_blocking=True),
+            mlm_tgt.to(self.device, non_blocking=True),
+            nsp_tgt.to(self.device, non_blocking=True),
         )
 
-        vocab_size = inputs.size(-1)
+        # vocab_size = inputs.size(-1)
 
-        mlm_pred, nsp_pred, _ = self(x, segments)
+        mlm_pred, nsp_pred, _ = self(inputs, segments, mask)
 
-        mlm_pred = mlm_pred.reshape((-1, vocab_size))
+        # mlm_pred = mlm_pred.reshape((-1, vocab_size))
 
-        y = y.reshape((-1,))
+        # y = y.reshape((-1,))
 
         mlm_loss = nn.functional.cross_entropy(
             mlm_pred,
@@ -178,15 +187,7 @@ class BERTModel(Model[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]):
             ),
         )
 
-        nsp_loss = nn.functional.cross_entropy(
-            nsp_pred,
-            nsp_tgt,
-            ignore_index=(
-                self.tokenizer.pad_token_id
-                if self.tokenizer.pad_token_id is not None
-                else -100
-            ),
-        )
+        nsp_loss = nn.functional.cross_entropy(nsp_pred, nsp_tgt)
 
         loss = mlm_loss + nsp_loss
 

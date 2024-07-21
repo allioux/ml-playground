@@ -10,10 +10,11 @@ import transformers
 from transformers import AutoTokenizer
 from torch import device, Tensor
 import spacy
+import pandas as pd
 
 from examples.bert.bert_model import BERTModel
 from examples.trainer import Trainer
-from examples.bert.bookcorpus import BookCorpus
+from examples.bert.wikipedia import Wikipedia
 
 
 class Collate:
@@ -31,46 +32,46 @@ class Collate:
         seed()
 
     def collate(
-        self, samples: list[str]
+        self, samples: list[tuple[str, str]]
     ) -> tuple[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]:
-        samples_token_ids: list[list[int]] = []
+        # samples_token_ids: list[list[int]] = []
+
+        vocab_size = 32000
 
         pad_token_id = self.tokenizer.pad_token_id
         mask_token_id = self.tokenizer.mask_token_id
         sep_token_id = self.tokenizer.sep_token_id
         cls_token_id = self.tokenizer.cls_token_id
 
+        batch_size = len(samples)
+
         pairs = []
-        for sample in samples:
+        for sent1, sent2 in samples:
             # extract the first two sentences
-            sents = self.nlp(sample).sents[:2]
+            # sents = self.nlp(sample).sents[:2]
 
             # tokenize the sentences
-            sent1_ids = self.tokenizer.encode(sents[0])
-            sent2_ids = self.tokenizer.encode(sents[1])
+            sent1_ids = self.tokenizer.encode(sent1)
+            sent2_ids = self.tokenizer.encode(sent2)
 
             pairs.append((sent1_ids, sent2_ids))
 
-        nsp_tgt = []
+        nsp_tgt = torch.empty((batch_size,), dtype=torch.int64, device=self.device)
         for i in range(len(pairs)):
             if random() > 0.5:
-                nsp_tgt.append(1)
+                nsp_tgt[i] = 1
             else:
                 pairs[i] = (pairs[i][0], pairs[(i + 1) % len(pairs)][1])
-                nsp_tgt.append(0)
+                nsp_tgt[i] = 0
 
-        batch_size = len(pairs)
-
-        seq_length = (
-            len(max(samples_token_ids, key=lambda x: len(x[0]) + len(x[1]))) + 2
-        )
+        seq_length = max([len(s1) + len(s2) for (s1, s2) in pairs]) + 2
 
         token_ids = torch.empty(
             (batch_size, seq_length), dtype=torch.int64, device=self.device
         )
 
         mask = torch.full(
-            (batch_size, seq_length), False, dtype=torch.int64, device=self.device
+            (batch_size, seq_length), False, dtype=torch.bool, device=self.device
         )
 
         segments = torch.zeros(
@@ -89,17 +90,20 @@ class Collate:
                 device=self.device,
             )
             mask[batch, 1 : len(sent1) + 1] = True
-            mask[batch, len(sent1) + 2 : len(sent2) + 2] = True
+            mask[batch, len(sent1) + 2 : len(sent1) + 2 + len(sent2)] = True
 
             segments[batch, len(sent1) + 1 :] = 1
 
-        alter_mask = mask.clone()[mask]
+        alter_mask = mask.clone()
 
         # alter 15% of tokens
-        alter_mask = torch.bernoulli(torch.full(alter_mask.shape, 0.15)) == 1.0
+        alter_mask[mask] = (
+            torch.bernoulli(torch.full(alter_mask[mask].shape, 0.15)) == 1.0
+        )
 
         # 80% of the altered tokens will be masked
         mask_mask = alter_mask.clone()
+        foo = mask_mask[alter_mask]
         mask_mask[alter_mask] = (
             torch.bernoulli(torch.full(mask_mask[alter_mask].shape, 0.8)) == 1.0
         )
@@ -108,9 +112,13 @@ class Collate:
         mask_rand = torch.logical_xor(alter_mask, mask_mask)
 
         token_ids[mask_mask] = self.tokenizer.mask_token_id
-        token_ids[mask_rand] = torch.rand(mask_rand.shape) * vocab_size
+        token_ids[mask_rand] = (
+            torch.rand(token_ids[mask_rand].shape) * (vocab_size - 1) + 1
+        ).long()
 
-        return ((token_ids, segments), (mask_mask, nsp_tgt))
+        mlm_tgt = token_ids[mask_mask]
+
+        return ((token_ids, segments), (mask_mask, mlm_tgt, nsp_tgt))
 
 
 class BERTExample:
@@ -134,8 +142,7 @@ class BERTExample:
         self.model = BERTModel(
             self.tokenizer,
             256,
-            1024,
-            ff_hidden_dim=104,
+            ff_hidden_dim=1024,
             device=self.device,
             dropout=0.2,
         )
@@ -162,8 +169,8 @@ class BERTExample:
     def train(self, epochs: int, batch_size: int):
         collate = Collate(self.tokenizer, device=self.device)
 
-        train_ds = BookCorpus(f"train")
-        valid_ds = BookCorpus("validation")
+        train_ds = Wikipedia()
+        valid_ds = Wikipedia()
 
         train_dl = DataLoader(
             train_ds,
@@ -187,7 +194,7 @@ class BERTExample:
 
     def test(self, batch_size: int):
         collate = Collate(self.tokenizer, device=self.device)
-        valid_ds = BookCorpus("validation")
+        valid_ds = Wikipedia()
         valid_dl = DataLoader(
             valid_ds, batch_size, collate_fn=collate.collate, shuffle=False
         )
@@ -205,14 +212,3 @@ class BERTExample:
             device=self.device,
             depth=10,
         )
-
-    def create_dataset(self):
-        nlp = spacy.load("en_core_web_sm")
-        dataset = BookCorpus()
-        with open("workfile", encoding="utf-8", mode="w") as f:
-            print(len(dataset))
-            for book in dataset[:10]:
-                print(book)
-                # [sent1, sent2] = list(nlp(book).sents)[:2]
-                # f.write(sent1 + "\n" + sent2 + "\n\n")
-            f.close()

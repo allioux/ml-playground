@@ -49,7 +49,7 @@ class Trainer:
         sample_offset = self.starting_sample % batch_size
 
         print(f"EPOCH {epoch}")
-
+        refresh = False
         # The typing information of the dataloader is lost when iterating over it!
         # (PyTorch issue #119123)
         for batch, (x, y) in enumerate(dataloader):
@@ -79,6 +79,7 @@ class Trainer:
 
             if time.time() - update_time > 5 or sample == size or batch == start_batch:
                 update_time = time.time()
+                refresh = True
                 training_results = self.model.training_step(x, y, with_accuracy=True)
             else:
                 training_results = self.model.training_step(x, y, with_accuracy=False)
@@ -95,15 +96,16 @@ class Trainer:
             self.optimizer.step()
             self.optimizer.zero_grad()
 
-            if accuracy is not None:
+            if refresh:
+                refresh = False
                 percent = int(100 * sample / size)
                 bar = "=" * int(60 * sample / size)
                 progress = (
                     f"\r[{bar:<60}] Training {percent}% "
                     f"| sample: {sample}/{size} "
                     f"| loss: {loss:.3} "
-                    f"| accuracy: {accuracy:.3}"
                 )
+                progress += f"| accuracy: {accuracy:.3}" if accuracy is not None else ""
                 sys.stdout.write(colored(progress, "magenta"))
                 sys.stdout.flush()
 
@@ -166,9 +168,9 @@ class Trainer:
     ) -> None:
         starting_epoch = self.starting_epoch
         for epoch in range(starting_epoch, starting_epoch + epochs):
-            self.test(test_dl)
+            #self.test(test_dl)
             self.train(train_dl, epoch)
-            if test_dl is not None:
-                self.test(test_dl)
+            #if test_dl is not None:
+            #    self.test(test_dl)
             self.starting_epoch += 1
             self.starting_sample = 0

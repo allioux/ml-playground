@@ -35,33 +35,5 @@ def train(
     example.train(epochs, batch_size)
 
 
-from transformers import AutoTokenizer
-from examples.bert.bookcorpus import BookCorpus
-
-
-@app.command()
-def tokenizer():
-    # tokenizer = AutoTokenizer.from_pretrained("arlette-tokenizer32")
-    train_ds = BookCorpus()
-
-    old_tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    tokenizer = old_tokenizer.train_new_from_iterator(train_ds, 32000)
-    tokenizer.add_special_tokens(
-        {
-            "pad_token": "[PAD]",
-            "sep_token": "[SEP]",
-            "cls_token": "[CLS]",
-            "mask_token": "[MSK]",
-        }
-    )
-    tokenizer.save_pretrained("tokenizer")
-
-
-@app.command()
-def dataset():
-    example = bert_example()
-    example.create_dataset()
-
-
 if __name__ == "__main__":
     app()
